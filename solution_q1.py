@@ -1,5 +1,20 @@
-state = (3, 3, 0, 0, 0)
+with open('input.txt', 'r', encoding='utf-8') as file:
+    lines = file.read().split(',')
+
+
+def format_state(unformatted_state):
+    return tuple([int(x.strip()) for x in unformatted_state[:4]] + [0 if unformatted_state[4].strip() == 'L' else 1])
+
+def unformat_state(formatted): 
+    temp = tuple([str(x) for x in formatted[:4]] + ['L' if formatted[4] == 0 else 'R'])
+    return ", ".join(temp)
+
+state = format_state(lines)
+
+
+
 MOVES = [(2, 0), (0, 2), (1, 1), (1, 0), (0, 1)]
+node_exp = [0]
 
 def next_state(current_state, m, c): 
     new_state = list(current_state)
@@ -27,6 +42,7 @@ def dfs(state, path, visited):
     if state == (0, 0, 3, 3, 1):
         return path
     visited.add(state)
+    node_exp[0]+=1
     for s in next_states(state):
         if s not in visited:
             result = dfs(s, path + [s], visited)
@@ -35,5 +51,14 @@ def dfs(state, path, visited):
     return None
 
 solution = dfs(state, [state], set())
-for step in solution:
-    print(step)
+print("The solution of Q1.1.a (DFS) is:")
+if solution == None: 
+    print("No solution")
+else: 
+
+    print("Solution Path: ")
+    for step in solution:
+        print(unformat_state(step))
+
+    print(f"Total cost = {len(solution) - 1}")
+    print(f"Number of node expansions = {node_exp[0]}")
