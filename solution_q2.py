@@ -39,37 +39,49 @@ def next_states(state):
             successors[s] = (m, c)
     return successors
 
-def cost(state, move):
+def cost(state, move, model):
     ml, cl, mr, cr, boat = state
     m, c = move
-    return boat+1 + 2*move[0] + move[1]
+    if model == 'A':
+        return MISSIONARY_COST*m + CANNIBAL_COST*c
+    return 2 if boat == 0 else 1  
 
         
 
-def ucs(state, path, visited, pq):
-    if state == (0, 0, 3, 3, 1):
-        return path
-    visited.add(state)
-    node_exp[0]+=1
+def ucs(start, model):
+    pq = [(0, start, [start])]         
+    visited = set()
 
     while pq:
-        cost, next_stat = heapq.heappop(pq)
-        if is_valid(next_stat):
-            if next_stat not in visited:
-                visited.add(next_stat)
-                for key, value in next_states(next_stat):
-                    heapq.heappush(pq, (value, key))
-    return None
+        g, current, path = heapq.heappop(pq)    
 
-solution = ucs(state, [state], set(), [state])
-print("The solution of Q1.1.a (DFS) is:")
-if solution == None: 
-    print("No solution")
-else: 
+        if current == (0, 0, 3, 3, 1):         
+            return path, g
+        if current in visited:                 
+            continue
+        
+        visited.add(current)
+        node_exp[0] += 1                      
 
-    print("Solution Path: ")
-    for step in solution:
-        print(unformat_state(step))
+        for s, move in next_states(current).items():   
+            if s not in visited:
+                new_g = g + cost(current, move, model)  
+                heapq.heappush(pq, (new_g, s, path + [s]))  
 
-    print(f"Total cost = {len(solution) - 1}")
-    print(f"Number of node expansions = {node_exp[0]}")
+    return None, None 
+
+for model in ['A', 'B']:
+    node_exp[0] = 0
+    solution, total = ucs(state, model)
+    print(f"The solution of Q2.1 (UCS, cost model {model}) is:")
+    if solution == None: 
+        print("No solution")
+    else: 
+
+        print("Solution Path: ")
+        for step in solution:
+            print(unformat_state(step))
+
+        print(f"Total cost = {total}")
+        print(f"Number of node expansions = {node_exp[0]}")
+    print()
