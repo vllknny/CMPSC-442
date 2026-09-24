@@ -32,27 +32,36 @@ def is_valid(state):
     return True
 
 def next_states(state):
-    successors = []
+    successors = {}
     for m, c in MOVES:
         s = next_state(state, m, c)
         if is_valid(s):
-            successors.append(s)
+            successors[s] = (m, c)
     return successors
+
+def cost(state, move):
+    ml, cl, mr, cr, boat = state
+    m, c = move
+    return boat+1 + 2*move[0] + move[1]
+
         
 
-def ucs(state, path, visited):
+def ucs(state, path, visited, pq):
     if state == (0, 0, 3, 3, 1):
         return path
     visited.add(state)
     node_exp[0]+=1
-    for s in next_states(state):
-        if s not in visited:
-            result = dfs(s, path + [s], visited)
-            if result is not None:
-                return result
+
+    while pq:
+        cost, next_stat = heapq.heappop(pq)
+        if is_valid(next_stat):
+            if next_stat not in visited:
+                visited.add(next_stat)
+                for key, value in next_states(next_stat):
+                    heapq.heappush(pq, (value, key))
     return None
 
-solution = ucs(state, [state], set())
+solution = ucs(state, [state], set(), [state])
 print("The solution of Q1.1.a (DFS) is:")
 if solution == None: 
     print("No solution")
