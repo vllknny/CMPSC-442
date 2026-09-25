@@ -50,6 +50,26 @@ def dfs(state, path, visited):
                 return result
     return None
 
+def bfs(state):
+    from collections import deque
+
+    queue = deque([(state, [state])])
+    visited = {state}
+    expansions = 0
+
+    while queue:
+        current_state, path = queue.popleft()
+        if current_state == (0, 0, 3, 3, 1):
+            return path, expansions
+
+        expansions += 1
+        for successor in next_states(current_state):
+            if successor not in visited:
+                visited.add(successor)
+                queue.append((successor, path + [successor]))
+
+    return None, expansions
+
 solution = dfs(state, [state], set())
 print("The solution of Q1.1.a (DFS) is:")
 if solution == None: 
@@ -62,3 +82,15 @@ else:
 
     print(f"Total cost = {len(solution) - 1}")
     print(f"Number of node expansions = {node_exp[0]}")
+
+bfs_solution, bfs_expansions = bfs(state)
+print("The solution of Q1.1.b (BFS) is:")
+if bfs_solution is None:
+    print("No solution")
+else:
+    print("Solution Path: ")
+    for step in bfs_solution:
+        print(unformat_state(step))
+
+    print(f"Total cost = {len(bfs_solution) - 1}")
+    print(f"Number of node expansions = {bfs_expansions}")
